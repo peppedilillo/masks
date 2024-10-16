@@ -1,4 +1,3 @@
-from numpy import typing as npt
 import numpy as np
 import numpy.typing as npt
 from scipy.signal import correlate
@@ -75,3 +74,7 @@ def encode(sky: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
     norm = np.sum(mask[mask == 1])
     detector = correlate(pad(mask), sky)[n - 1 : -n + 1, m - 1 : -m + 1] / norm
     return detector
+
+
+def open_fraction(mask: npt.NDArray):
+    return np.sum(mask) / np.prod(mask.shape)

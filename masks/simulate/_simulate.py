@@ -40,7 +40,7 @@ def transport(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
     return detector
 
 
-def transmit(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
+def skymap_transmitted(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
     """
     Ground truth. Returns a count map of the sky directions of the photons which
     made it through the mask.
@@ -49,30 +49,29 @@ def transmit(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
     :param mask:
     :return: sky count map
     """
-    mask_size = mask.shape
+    shape = mask.shape
     transmitted = photons[~absorbed(photons, mask)]
     counts, *_ = np.histogram2d(
         x=transmitted[:, 0],
         y=transmitted[:, 1],
-        bins=[np.arange(mask_size[0] + 1), np.arange(mask_size[1] + 1)],
+        bins=[np.arange(shape[0] + 1), np.arange(shape[1] + 1)],
     )
     return counts
 
 
-def source(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
+def skymap(photons: npt.NDArray, shape: tuple[int, int]) -> npt.NDArray:
     """
     Ground truth. Returns a count map of the sky directions of all photons, including
     thouse stopped by the mask.
 
     :param photons:
-    :param mask:
+    :param shape:
     :return: sky count map
     """
-    mask_size = mask.shape
     counts, *_ = np.histogram2d(
         x=photons[:, 0],
         y=photons[:, 1],
-        bins=[np.arange(mask_size[0] + 1), np.arange(mask_size[1] + 1)],
+        bins=[np.arange(shape[0] + 1), np.arange(shape[1] + 1)],
     )
     return counts
 
@@ -117,7 +116,7 @@ def background_photons(size: int, shape: tuple[int, int]):
     return ps.astype(int)
 
 
-def random_photons(
+def photon_list(
     fsources: Sequence,
     brate: float,
     shape: tuple[int, int],
@@ -149,6 +148,4 @@ def random_photons(
             for (nsignal, signal_dir) in zip(fsources, dsources)
         ]
     )
-
-    photon_list = np.concatenate((bphotons, sphotons))
-    return photon_list, info
+    return np.concatenate((bphotons, sphotons)), info
