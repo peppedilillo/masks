@@ -21,6 +21,7 @@ def absorbed(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray[np.bool]:
     return _A[dirx + impx, diry + impy] == 0
 
 
+
 def transport(photons: npt.NDArray, mask: npt.NDArray) -> npt.NDArray:
     """
     Given a list of photons (direction/impact site tuples) returns the resulting

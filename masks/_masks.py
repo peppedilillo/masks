@@ -9,6 +9,10 @@ def ura(r: int, s: int, m: int = 1) -> tuple[npt.NDArray, npt.NDArray]:
     """
     Generates a URA mask and its decoding array.
 
+    From: `https://github.com/bpops/codedapertures` by https://github.com/bpops
+    All credits reserved and thank you very much!
+    TODO: bundle a license
+
     :param r: number of rows
     :param s: number of columns
     :param m: number of tiles
