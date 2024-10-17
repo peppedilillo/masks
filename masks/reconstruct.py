@@ -90,3 +90,41 @@ def mem(
         trace.append(chisq)
     trace.pop(0)
     return y / np.sum(y), trace
+
+
+def iros(
+        detector: npt.NDArray,
+        mask: npt.NDArray,
+        decoder: npt.NDArray,
+        threshold: float=5.0,
+):
+    def shadowgram(x, y, counts, mask):
+        s = np.zeros(mask.shape)
+        s[x, y] = counts
+        return encode(s, mask)
+
+    def record_source(source, skymap_cc):
+        x, y, counts = *source, skymap_cc[*source]
+        return {
+            "x": source[0].item(),
+            "y": source[1].item(),
+            "counts": counts.item(),
+        }
+
+    detector = detector.copy()
+    nphotons = np.sum(detector)
+    cleaned_sources = []
+    skymap_cc = cross_correlation(detector, decoder)
+    snr_cc = skymap_cc / np.sqrt(variance(detector, decoder))
+    targets = np.argwhere(snr_cc > threshold)
+    for target in targets:
+        cleaned_sources.append(record_source(target, skymap_cc))
+        shadow = shadowgram(*target, skymap_cc[*target], mask)
+        detector = detector - shadow
+        skymap_cc = cross_correlation(detector, decoder)
+
+    brate = (nphotons - sum([source["counts"] for source in cleaned_sources])) / np.prod(mask.shape)
+    skymap_iros = np.ones(mask.shape) * brate
+    for source in cleaned_sources:
+        skymap_iros[source["x"], source["y"]] = source["counts"]
+    return skymap_iros, cleaned_sources
