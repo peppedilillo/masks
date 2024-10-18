@@ -3,7 +3,7 @@ import numpy.typing as npt
 
 
 def plotmaps(
-        annotated_maps: list[tuple[npt.NDArray, str]],
+        annotated_maps: list[tuple[npt.NDArray, str, str]],
         ncols: int = 3,
         **kwargs,
 ):
@@ -21,9 +21,10 @@ def plotmaps(
     nrows = (nmaps - 1) // ncols + 1
     fig, axs = plt.subplots(nrows, ncols, **kwargs)
     axs = axs.flatten() if hasattr(axs, "__len__") else [axs]
-    for ax, (arr, title) in zip(axs, annotated_maps):
+    for ax, (arr, title, clabel) in zip(axs, annotated_maps):
         c0 = ax.imshow(arr)
-        fig.colorbar(c0, ax=ax, location="bottom", pad=0.075)
+        if clabel:
+            fig.colorbar(c0, ax=ax, location="bottom", pad=0.075, label=clabel)
         ax.set_title(title)
     for ax in axs[nmaps:]:
         ax.axis("off")
